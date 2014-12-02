@@ -5,4 +5,4 @@ A toolkit for handling data files from the Ocean Biogeographic Information Syste
 
 Currently includes the following tools:
 
-shaper.py: builds ESRI shape files from OBIS text delimited data
+shaper.py: builds ESRI shape files (http://www.esri.com/library/whitepapers/pdfs/shapefile.pdf) from OBIS (http://www.iobis.org) text delimited data
