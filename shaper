@@ -1,0 +1,175 @@
+#=========================================================================#
+#     Shaper - Builds ESRI shape files from OBIS text delimited data.     #
+#               Copyright 2008-2014 Mauro J. Cavalcanti                   #
+#                         maurobio@gmail.com                              #
+#                                                                         #
+#   This program is free software: you can redistribute it and/or modify  #
+#   it under the terms of the GNU General Public License as published by  #
+#   the Free Software Foundation, either version 3 of the License, or     #
+#   (at your option) any later version.                                   #
+#                                                                         #
+#   This program is distributed in the hope that it will be useful,       #
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of        #
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         #
+#   GNU General Public License for more details.                          #
+#                                                                         #
+#   You should have received a copy of the GNU General Public License     #
+#   along with this program. If not, see <http://www.gnu.org/licenses/>.  #
+#                                                                         #
+#   Requirements:                                                         #
+#      Python version 2.4.3 to 2.7.8                                      #
+#      PyShp module to read and write ESRI shapefiles by Joel Lawhead     #
+#      (https://github.com/GeospatialPython/pyshp)                        #
+#                                                                         #
+#   REVISION HISTORY:                                                     #
+#      Version 1.00, 14th May 08 - Initial release                        #
+#      Version 2.00, 28th Nov 14 - Changed to the Python Shapefile        #
+#                                  Library.(pyshp) and to the lateste     #
+#                                  OBIS output format                     #
+#=========================================================================#
+
+def to_int(in_val):
+    try:
+        ret_val = int(in_val)
+        return ret_val
+    except:
+        return 0
+
+def to_float(in_val):
+    try:
+        ret_val = float(in_val)
+        return ret_val
+    except:
+        return 0.0
+
+import csv
+import os.path
+import sys
+import shapefile # pyshp module
+
+os.system("CLS")
+print "Shaper: Builds ESRI shape files from OBIS text delimited data"
+print "(c) 2008-2014 Mauro J. Cavalcanti"
+print "Ecoinformatics Studio, Rio de Janeiro, Brazil"
+print "E-mail: maurobio@gmail.com\n"
+
+ok = False
+while not ok:
+    inf = raw_input("Enter data file name: ")
+    if inf == '':
+        sys.exit(0)
+    if inf.find('.') < 0:
+        inf +=  ".csv"
+    ok = os.path.exists(inf)
+    if not ok:
+        print "*** ERROR: File", inf.upper(), "not found!"
+
+outf = raw_input("Enter shapefile name: ")
+if outf == '':
+    sys.exit(0)
+    
+# Field dictionary
+fields = {'id':0,
+        'valid_id':1,
+        'sname':2,
+        'sauthor':3,
+        'tname':4,
+        'tauthor':5,
+        'resource_id':6,
+        'resname':7,
+        'datecollected':8,
+        'latitude': 9,
+        'longitude':10,
+        'lifestage':11,
+        'basisofrecord':12,
+        'datelastcached':13,
+        'dateprecision':14,
+        'datelastmodified':15,
+        'depth':16,
+        'depthprecision':17,
+        'temperature':18,
+        'salinity':19,
+        'nitrate':20,
+        'oxygen':21,
+        'phosphate':22,
+        'silicate':23}
+
+# Create shapefile
+sFile = outf
+w = shapefile.Writer(shapefile.POINT)
+
+# Define database scheme
+w.field("id", 'N', 12)
+w.field("valid_id", 'N', 9)
+w.field("sname", 'C', 65)
+w.field("sauthor", 'C', 40)
+w.field("tname", 'C', 65)
+w.field("tauthor", 'C', 40)
+w.field("resource_id", 'N', 7)
+w.field("resname", 'C', 95)
+w.field("datecollected", 'C', 10)
+w.field("latitude", 'F', 11, 6)
+w.field("longitude", 'F', 11, 6)
+w.field("lifestage", 'C', 11)
+w.field("basisofrecord", 'C', 17)
+w.field("datelastcached", 'C', 19)
+w.field("dateprecision", 'C', 17)
+w.field("datelastmodified", 'C', 37)
+w.field("depth", 'F', 7, 2)
+w.field("depthprecision", 'C', 5)
+w.field("temperature", 'F', 7, 2)
+w.field("salinity", 'F', 7, 2)
+w.field("nitrate", 'F', 7, 2)
+w.field("oxygen", 'F', 7, 2)
+w.field("phosphate", 'F', 7, 2)
+w.field("silicate", 'F', 7, 2)
+
+# Read-in and process data file in text delimited format (downloaded from OBIS)
+print "Processing data file...",
+dataFile = csv.reader(open(inf, "rb"), delimiter = ',')
+dataFile.next() # Skip header line
+i = 0
+for row in dataFile:
+    id = int(row[fields['id']])
+    valid_id = int(row[fields['valid_id']])
+    sname = row[fields['sname']]
+    sauthor = row[fields['sauthor']]
+    tname = row[fields['tname']]
+    tauthor = row[fields['tauthor']]
+    resource_id = int(row[fields['resource_id']])
+    resname = row[fields['resname']]
+    datecollected = row[fields['datecollected']]
+    latitude = row[fields['latitude']]
+    longitude = row[fields['longitude']]
+    lifestage = row[fields['lifestage']]
+    basisofrecord = row[fields['basisofrecord']]
+    datelastcached = row[fields['datelastcached']]
+    dateprecision = row[fields['dateprecision']]
+    datelastmodified = row[fields['datelastmodified']]
+    depth = to_float(row[fields['depth']])
+    depthprecision = row[fields['depthprecision']]
+    temperature = to_float(row[fields['temperature']])
+    salinity = to_float(row[fields['salinity']])
+    nitrate = to_float(row[fields['nitrate']])
+    oxygen = to_float(row[fields['oxygen']])
+    phosphate = to_float(row[fields['phosphate']])
+    silicate = to_float(row[fields['silicate']])
+    
+    # Write point coordinates and database record
+    w.point(float(longitude), float(latitude), 0, 0)
+    w.record(id, valid_id, sname, sauthor, tname, tauthor, resource_id, resname, datecollected, 
+            latitude, longitude, lifestage, basisofrecord, datelastcached, dateprecision,
+            datelastmodified, depth, depthprecision, temperature, salinity, nitrate, 
+            oxygen, phosphate, silicate)
+    w.autoBalance = 1
+    i += 1
+    print i, "record(s) processed."
+
+w.save(sFile)
+print
+print "Output files - "
+print "   ", outf.lower() + '.shp'
+print "   ", outf.lower() + '.dbf'
+print "   ", outf.lower() + '.shx'
+print
+print "- done -"
